@@ -72,7 +72,7 @@ $("signupBtn").onclick=async()=>{
   const password=$("authPassword").value;
   if(!email||!password){setMessage("authMessage","Entre ton e-mail et un code secret.");return;}
   if(password.length<8){setMessage("authMessage","Le code secret doit contenir au moins 8 caractères.");return;}
-  const {data,error}=await db.auth.signUp({email,password});
+  const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin+window.location.pathname}});
   if(error){setMessage("authMessage","Création impossible : "+error.message);return;}
   if(!data.session){
     setMessage("authMessage","Compte créé. Vérifie ton e-mail puis reviens te connecter.",true);
