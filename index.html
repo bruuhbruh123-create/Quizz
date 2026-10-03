@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <title>Mes QCM — V2</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="loading" class="loading">Chargement…</div>
+
+  <section id="authView" class="auth-screen hidden">
+    <div class="auth-card">
+      <div class="logo">🧠</div>
+      <h1>Mes QCM</h1>
+      <p class="muted">V2 — connexion et sauvegarde en ligne</p>
+
+      <div id="setupNotice" class="notice">
+        Première utilisation : crée ton compte avec ton e-mail et ton code secret.
+      </div>
+
+      <label>E-mail
+        <input id="authEmail" type="email" autocomplete="email" placeholder="ton@email.com">
+      </label>
+
+      <label>Code secret
+        <input id="authPassword" type="password" autocomplete="current-password"
+               placeholder="8 caractères minimum">
+      </label>
+
+      <div class="auth-actions">
+        <button id="loginBtn" class="primary">Se connecter</button>
+        <button id="signupBtn" class="secondary">Créer mon compte</button>
+      </div>
+      <p id="authMessage" class="message"></p>
+      <p class="tiny">Ton code secret sert de mot de passe. Ne le partage pas.</p>
+    </div>
+  </section>
+
+  <section id="appView" class="hidden">
+    <header class="topbar">
+      <div>
+        <div class="brand">🧠 Mes QCM</div>
+        <div id="syncStatus" class="sync">● En ligne</div>
+      </div>
+      <button id="logoutBtn" class="ghost">Se déconnecter</button>
+    </header>
+
+    <nav class="tabs">
+      <button data-tab="library" class="tab active">Mes quiz</button>
+      <button data-tab="editor" class="tab">Créer</button>
+      <button data-tab="results" class="tab">Résultats</button>
+      <button data-tab="backup" class="tab">Sauvegarde</button>
+    </nav>
+
+    <main>
+      <section id="library" class="panel active">
+        <div class="section-head">
+          <div>
+            <h2>Mes quiz</h2>
+            <p class="muted">Tes quiz sont sauvegardés dans ton compte en ligne.</p>
+          </div>
+          <button id="newQuizBtn" class="primary">＋ Nouveau quiz</button>
+        </div>
+        <div id="quizList" class="grid"></div>
+      </section>
+
+      <section id="editor" class="panel">
+        <div class="section-head">
+          <div>
+            <h2 id="editorTitle">Créer un quiz</h2>
+            <p class="muted">Plusieurs réponses peuvent être correctes.</p>
+          </div>
+          <button id="cancelEditBtn" class="ghost">Annuler</button>
+        </div>
+        <form id="quizForm">
+          <input type="hidden" id="editingQuizId">
+          <label>Nom du quiz
+            <input id="quizName" required maxlength="120" placeholder="Ex. SVT — Chapitre 3">
+          </label>
+          <div id="questionsEditor"></div>
+          <div class="editor-actions">
+            <button type="button" id="addQuestionBtn" class="secondary">＋ Ajouter une question</button>
+            <button type="submit" class="primary">💾 Enregistrer le quiz</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="play" class="panel">
+        <div class="section-head">
+          <div>
+            <h2 id="playTitle">Quiz</h2>
+            <p id="playProgress" class="muted"></p>
+          </div>
+          <button id="quitPlayBtn" class="ghost">Quitter</button>
+        </div>
+        <div class="progress"><div id="progressBar"></div></div>
+        <div id="playQuestion"></div>
+        <div class="play-actions">
+          <button id="validateBtn" class="primary">Valider</button>
+          <button id="nextBtn" class="primary hidden">Question suivante</button>
+        </div>
+      </section>
+
+      <section id="results" class="panel">
+        <div class="section-head">
+          <div>
+            <h2>Résultats</h2>
+            <p class="muted">Tes dernières séances.</p>
+          </div>
+          <button id="clearResultsBtn" class="ghost danger">Effacer l’historique</button>
+        </div>
+        <div id="resultsList"></div>
+      </section>
+
+      <section id="backup" class="panel">
+        <div class="section-head">
+          <div>
+            <h2>Sauvegarde</h2>
+            <p class="muted">La sauvegarde en ligne est automatique. Ces boutons servent de copie de secours.</p>
+          </div>
+        </div>
+        <div class="backup-card">
+          <h3>Exporter une copie</h3>
+          <p>Enregistre tous tes quiz et résultats dans un fichier JSON.</p>
+          <button id="exportBtn" class="secondary">⬇️ Exporter</button>
+        </div>
+        <div class="backup-card">
+          <h3>Importer une copie</h3>
+          <p>L'import remplace les quiz du compte par ceux du fichier.</p>
+          <input id="importFile" type="file" accept=".json,application/json">
+          <button id="importBtn" class="secondary">⬆️ Importer</button>
+          <p id="backupMessage" class="message"></p>
+        </div>
+      </section>
+    </main>
+  </section>
+
+  <template id="questionTemplate">
+    <article class="question-editor card">
+      <div class="question-head">
+        <h3>Question <span class="question-number"></span></h3>
+        <button type="button" class="remove-question ghost danger">Supprimer</button>
+      </div>
+      <label>Énoncé
+        <textarea class="q-text" rows="3" required placeholder="Écris ta question…"></textarea>
+      </label>
+      <div class="options"></div>
+      <button type="button" class="add-option secondary small">＋ Ajouter une réponse</button>
+      <label>Explication (facultative)
+        <textarea class="q-explanation" rows="2" placeholder="Pourquoi cette réponse est correcte ?"></textarea>
+      </label>
+    </article>
+  </template>
+
+  <template id="optionTemplate">
+    <div class="option-row">
+      <input type="checkbox" class="correct-check" title="Cocher si cette réponse est correcte">
+      <input type="text" class="option-text" maxlength="300" placeholder="Réponse">
+      <button type="button" class="remove-option ghost danger">×</button>
+    </div>
+  </template>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
